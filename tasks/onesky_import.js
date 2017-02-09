@@ -10,6 +10,7 @@ var crypto = require('crypto');
 var fs = require('fs');
 var _ = require('lodash');
 var FormData = require('form-data');
+var Bluebird = require('bluebird');
 
 var apiRoot = 'https://platform.api.onesky.io/1/';
 
@@ -30,15 +31,15 @@ module.exports = function (grunt) {
             isKeepingAllStrings: true
         });
 
-        if (!!options.files.lenght) {
-            options.files.push({projectId: options.projectId, locale: options.locale, file: options.file});
+        if (!options.files.length) {
+            options.files.push({ projectId: options.projectId, locale: options.locale, file: options.file});
         }
 
         uploadFiles = options.files.map(function(element) {
             return upload(element);
         });
 
-        Promise.all(uploadFiles).then(function() {
+        Bluebird.all(uploadFiles).then(function() {
             done();
         });
 
@@ -48,7 +49,7 @@ module.exports = function (grunt) {
             var api = getApi(element.projectId);
             var url = api.baseUrl + api.path;
 
-            var _promise = new Promise(function(resolve, reject) {
+            return new Bluebird(function(resolve, reject) {
 
                 var form = new FormData();
                 form.append('api_key', api.publicKey);
@@ -96,7 +97,6 @@ module.exports = function (grunt) {
                     reject();
                 }
             });
-            return _promise;
         }
         function getApi(projectId) {
             var oneSkyKeys = grunt.file.readJSON(options.authFile);
