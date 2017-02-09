@@ -31,7 +31,7 @@ module.exports = function (grunt) {
             isKeepingAllStrings: true
         });
 
-        if (!!options.files.length) {
+        if (!options.files.length) {
             options.files.push({ projectId: options.projectId, locale: options.locale, file: options.file});
         }
 
